@@ -68,7 +68,7 @@
     "open": "0.0.5",
     "winston": "^1.0.1",
     "wkhtmltopdf": "^0.1.5",
-    "he": "^1.2.0",
+    "he": "^1.2.0"
   },
   "devDependencies": {
     "babel": "^5.8.21",
