@@ -10,7 +10,8 @@ var marked = require('marked'),
     path = require('path'),
     util = require('util'),
     datauri = require('datauri').sync,
-    helpers = require('./helpers');
+    helpers = require('./helpers'),
+    he = require('he');
 
 var Markdown = (function () {
   function Markdown(wikiPath, aliases) {
@@ -41,7 +42,7 @@ var Markdown = (function () {
 
       this.mainRenderer.link = function (href, title, text) {
         if (!href.match(/^https?:\/\//) || self.isTocLink(href)) {
-          href = '#' + helpers.getPageIdFromFilenameOrLink(href);
+          href = '#' + helpers.getPageIdFromFilenameOrLink(href).toLowerCase();
         }
         return '<a href="' + href + '">' + text + '</a>';
       };
@@ -84,7 +85,8 @@ var Markdown = (function () {
       };
 
       this.tocRenderer.link = function (href, title, text) {
-        var pageId = helpers.getPageIdFromFilenameOrLink(href);
+        var pageId = helpers.getPageIdFromFilenameOrLink(href).toLowerCase();
+        var pageIdDecoded = helpers.getPageIdFromFilenameOrLink(href).toLowerCase();
         if (self.wikiFileAliases[pageId]) {
           self.tocItems.push({
             title: text,
@@ -92,7 +94,17 @@ var Markdown = (function () {
             pageId: pageId
           });
           href = '#' + pageId;
+        } else if (self.wikiFileAliases[pageIdDecoded]) {
+          self.tocItems.push({
+            title: text,
+            link: href,
+            pageId: pageIdDecoded
+          });
+          href = '#' + pageIdDecoded;
+        } else {
+          console.log('Did not find ' + href + ' with pageid ' + pageId + ' or decoded pageid ' + pageIdDecoded);
         }
+
         return '<a href="' + href + '">' + text + '</a>';
       };
 
@@ -117,7 +129,7 @@ var Markdown = (function () {
   }, {
     key: 'convertMarkdownFile',
     value: function convertMarkdownFile(markdown_file) {
-      return this.convertMarkdownString(fs.readFileSync(markdown_file, {
+      return this.convertMarkdownString(fs.readFileSync(this.getActualFilename(markdown_file), {
         encoding: 'utf8'
       }));
     }
@@ -196,6 +208,53 @@ var Markdown = (function () {
         return link;
       });
     }
+  }, {
+    key: 'getActualFilename',
+    value: (function (_getActualFilename) {
+      function getActualFilename(_x) {
+        return _getActualFilename.apply(this, arguments);
+      }
+
+      getActualFilename.toString = function () {
+        return _getActualFilename.toString();
+      };
+
+      return getActualFilename;
+    })(function (filename) {
+      var lcFilename = path.basename(filename).toLowerCase();
+      // handles passing in `c:\\`
+      if (!lcFilename) {
+        return filename.toUpperCase();
+      }
+
+      var dirname = path.dirname(filename);
+      var filenames = undefined;
+      try {
+        filenames = fs.readdirSync(dirname);
+      } catch (e) {
+        // we already verified the path exists above so if this
+        // happens it means the OS won't let use get a listing (UNC root on windows)
+        // so it's the best we can do
+        return filename;
+      }
+      var matches = filenames.filter(function (name) {
+        return lcFilename === name.toLowerCase();
+      });
+      if (!matches.length) {
+        throw new Error(filename + ' does not exist');
+      }
+
+      var realname = matches[0];
+      if (dirname !== '.') {
+        if (dirname.endsWith('/') || dirname.endsWith('\\')) {
+          return path.join(dirname, realname);
+        } else {
+          return path.join(getActualFilename(dirname), realname);
+        }
+      } else {
+        return realname;
+      }
+    })
   }]);
 
   return Markdown;
