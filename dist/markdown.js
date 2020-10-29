@@ -210,25 +210,15 @@ var Markdown = (function () {
     }
   }, {
     key: 'getActualFilename',
-    value: (function (_getActualFilename) {
-      function getActualFilename(_x) {
-        return _getActualFilename.apply(this, arguments);
-      }
-
-      getActualFilename.toString = function () {
-        return _getActualFilename.toString();
-      };
-
-      return getActualFilename;
-    })(function (filename) {
-      var lcFilename = path.basename(filename).toLowerCase();
+    value: function getActualFilename(filename) {
+      const lcFilename = path.basename(filename).toLowerCase();
       // handles passing in `c:\\`
       if (!lcFilename) {
         return filename.toUpperCase();
       }
 
-      var dirname = path.dirname(filename);
-      var filenames = undefined;
+      const dirname = path.dirname(filename);
+      let filenames;
       try {
         filenames = fs.readdirSync(dirname);
       } catch (e) {
@@ -237,14 +227,12 @@ var Markdown = (function () {
         // so it's the best we can do
         return filename;
       }
-      var matches = filenames.filter(function (name) {
-        return lcFilename === name.toLowerCase();
-      });
+      const matches = filenames.filter(name => lcFilename === name.toLowerCase());
       if (!matches.length) {
-        throw new Error(filename + ' does not exist');
+        throw new Error(`${filename} does not exist`);
       }
 
-      var realname = matches[0];
+      const realname = matches[0];
       if (dirname !== '.') {
         if (dirname.endsWith('/') || dirname.endsWith('\\')) {
           return path.join(dirname, realname);
@@ -253,8 +241,8 @@ var Markdown = (function () {
         }
       } else {
         return realname;
-      }
-    })
+    }
+  }
   }]);
 
   return Markdown;
