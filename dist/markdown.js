@@ -86,7 +86,7 @@ var Markdown = (function () {
 
       this.tocRenderer.link = function (href, title, text) {
         var pageId = helpers.getPageIdFromFilenameOrLink(href).toLowerCase();
-        var pageIdDecoded = helpers.getPageIdFromFilenameOrLink(href).toLowerCase();
+        var pageIdDecoded = helpers.getPageIdFromFilenameOrLink(he.decode(href)).toLowerCase();
         if (self.wikiFileAliases[pageId]) {
           self.tocItems.push({
             title: text,

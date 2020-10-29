@@ -81,7 +81,7 @@ class Markdown {
 
     this.tocRenderer.link = function(href, title, text) {
       let pageId = helpers.getPageIdFromFilenameOrLink(href).toLowerCase()
-      let pageIdDecoded = helpers.getPageIdFromFilenameOrLink(href).toLowerCase()
+      let pageIdDecoded = helpers.getPageIdFromFilenameOrLink(he.decode(href)).toLowerCase()
       if(self.wikiFileAliases[pageId]){
         self.tocItems.push({
           title: text,
