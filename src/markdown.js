@@ -36,7 +36,7 @@ class Markdown {
 
     this.mainRenderer.link = function(href, title, text) {
       if (!href.match(/^https?:\/\//) || self.isTocLink(href)) {
-        href = '#' + helpers.getPageIdFromFilenameOrLink(href)
+        href = '#' + helpers.getPageIdFromFilenameOrLink(href).toLowerCase()
       }
       return `<a href="${href}">${text}</a>`
     }
@@ -79,7 +79,8 @@ class Markdown {
     }
 
     this.tocRenderer.link = function(href, title, text) {
-      let pageId = helpers.getPageIdFromFilenameOrLink(href)
+      let pageId = helpers.getPageIdFromFilenameOrLink(href).toLowerCase()
+      let pageIdDecoded = helpers.getPageIdFromFilenameOrLink(href).toLowerCase()
       if(self.wikiFileAliases[pageId]){
         self.tocItems.push({
           title: text,
@@ -88,6 +89,18 @@ class Markdown {
         })
         href = `#${pageId}`
       }
+      else if (self.wikiFileAliases[pageIdDecoded]) {
+          self.tocItems.push({
+            title: text,
+            link: href,
+            pageId: pageIdDecoded
+          });
+          href = '#' + pageIdDecoded;
+      }
+      else {
+          console.log('Did not find ' + href + ' with pageid ' + pageId + ' or decoded pageid ' + pageIdDecoded);
+      }
+
       return `<a href="${href}">${text}</a>`
     }
 
@@ -109,7 +122,7 @@ class Markdown {
   }
 
   convertMarkdownFile(markdown_file) {
-    return this.convertMarkdownString(fs.readFileSync(markdown_file, {
+    return this.convertMarkdownString(fs.readFileSync(this.getActualFilename(markdown_file), {
       encoding: 'utf8'
     }))
   }
@@ -161,6 +174,40 @@ class Markdown {
       link = `[${linkTitle}](${pageName})`
       return link
     })
+  }
+
+  getActualFilename(filename) {
+    const lcFilename = path.basename(filename).toLowerCase();
+      // handles passing in `c:\\`
+      if (!lcFilename) {
+        return filename.toUpperCase();
+      }
+
+      const dirname = path.dirname(filename);
+      let filenames;
+      try {
+        filenames = fs.readdirSync(dirname);
+      } catch (e) {
+        // we already verified the path exists above so if this
+        // happens it means the OS won't let use get a listing (UNC root on windows)
+        // so it's the best we can do
+        return filename;
+      }
+      const matches = filenames.filter(name => lcFilename === name.toLowerCase());
+      if (!matches.length) {
+        throw new Error(`${filename} does not exist`);
+      }
+
+      const realname = matches[0];
+      if (dirname !== '.') {
+        if (dirname.endsWith('/') || dirname.endsWith('\\')) {
+          return path.join(dirname, realname);
+        } else {
+          return path.join(getActualFilename(dirname), realname);
+        }
+      } else {
+        return realname;
+    } 
   }
 }
 
