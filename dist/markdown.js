@@ -10,7 +10,8 @@ var marked = require('marked'),
     path = require('path'),
     util = require('util'),
     datauri = require('datauri').sync,
-    helpers = require('./helpers');
+    helpers = require('./helpers'),
+    he = require('he');
 
 var Markdown = (function () {
   function Markdown(wikiPath, aliases) {
@@ -85,6 +86,7 @@ var Markdown = (function () {
 
       this.tocRenderer.link = function (href, title, text) {
         var pageId = helpers.getPageIdFromFilenameOrLink(href).toLowerCase();
+        var pageIdDecoded = helpers.getPageIdFromFilenameOrLink(href).toLowerCase();
         if (self.wikiFileAliases[pageId]) {
           self.tocItems.push({
             title: text,
@@ -92,7 +94,17 @@ var Markdown = (function () {
             pageId: pageId
           });
           href = '#' + pageId;
+        } else if (self.wikiFileAliases[pageIdDecoded]) {
+          self.tocItems.push({
+            title: text,
+            link: href,
+            pageId: pageIdDecoded
+          });
+          href = '#' + pageIdDecoded;
+        } else {
+          console.log('Did not find ' + href + ' with pageid ' + pageId + ' or decoded pageid ' + pageIdDecoded);
         }
+
         return '<a href="' + href + '">' + text + '</a>';
       };
 
@@ -198,15 +210,25 @@ var Markdown = (function () {
     }
   }, {
     key: 'getActualFilename',
-    value: function getActualFilename(filename) {
-      const lcFilename = path.basename(filename).toLowerCase();
+    value: (function (_getActualFilename) {
+      function getActualFilename(_x) {
+        return _getActualFilename.apply(this, arguments);
+      }
+
+      getActualFilename.toString = function () {
+        return _getActualFilename.toString();
+      };
+
+      return getActualFilename;
+    })(function (filename) {
+      var lcFilename = path.basename(filename).toLowerCase();
       // handles passing in `c:\\`
       if (!lcFilename) {
         return filename.toUpperCase();
       }
 
-      const dirname = path.dirname(filename);
-      let filenames;
+      var dirname = path.dirname(filename);
+      var filenames = undefined;
       try {
         filenames = fs.readdirSync(dirname);
       } catch (e) {
@@ -215,12 +237,14 @@ var Markdown = (function () {
         // so it's the best we can do
         return filename;
       }
-      const matches = filenames.filter(name => lcFilename === name.toLowerCase());
+      var matches = filenames.filter(function (name) {
+        return lcFilename === name.toLowerCase();
+      });
       if (!matches.length) {
-        throw new Error(`${filename} does not exist`);
+        throw new Error(filename + ' does not exist');
       }
 
-      const realname = matches[0];
+      var realname = matches[0];
       if (dirname !== '.') {
         if (dirname.endsWith('/') || dirname.endsWith('\\')) {
           return path.join(dirname, realname);
@@ -229,8 +253,8 @@ var Markdown = (function () {
         }
       } else {
         return realname;
-    }
-  }
+      }
+    })
   }]);
 
   return Markdown;
