@@ -177,24 +177,28 @@ class Markdown {
     })
   }
 
+  /**
+   * @private
+   * @returns {String}
+   */
   getActualFilename(filename) {
-    const lcFilename = path.basename(filename).toLowerCase();
+    const lcFilename = path.basename(filename).toLowerCase()
       // handles passing in `c:\\`
       if (!lcFilename) {
-        return filename.toUpperCase();
+        return filename.toUpperCase().toString()
       }
 
-      const dirname = path.dirname(filename);
+      const dirname = path.dirname(filename)
       let filenames;
       try {
-        filenames = fs.readdirSync(dirname);
+        filenames = fs.readdirSync(dirname)
       } catch (e) {
         // we already verified the path exists above so if this
         // happens it means the OS won't let use get a listing (UNC root on windows)
         // so it's the best we can do
-        return filename;
+        return filename.toString();
       }
-      const matches = filenames.filter(name => lcFilename === name.toLowerCase());
+      const matches = filenames.filter(name => lcFilename === name.toLowerCase())
       if (!matches.length) {
         throw new Error(`${filename} does not exist`);
       }
@@ -202,12 +206,12 @@ class Markdown {
       const realname = matches[0];
       if (dirname !== '.') {
         if (dirname.endsWith('/') || dirname.endsWith('\\')) {
-          return path.join(dirname, realname);
+          return path.join(dirname, realname).toString()
         } else {
-          return path.join(getActualFilename(dirname), realname);
+          return path.join(getActualFilename(dirname), realname).toString()
         }
       } else {
-        return realname;
+        return realname.toString()
     } 
   }
 }
