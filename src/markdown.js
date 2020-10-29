@@ -7,6 +7,7 @@ var marked = require('marked')
   , util = require('util')
   , datauri = require('datauri').sync
   , helpers = require('./helpers')
+  , he = require('he')
 
 
 class Markdown {
