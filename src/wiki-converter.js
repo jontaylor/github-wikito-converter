@@ -73,14 +73,23 @@ class WikiConverter {
    * @returns {wiki-converter}
    */
   computePages() {
-    this.pages = []
+    var unsorted_pages = []
     this.toc.getItems().forEach(item => {
-      this.pages.push({
+      this.unsorted_pages.push({
         title: item.title,
         file: this.mdAliases[item.pageId],
         html: this.markdownConverter.convertMarkdownFile(this.mdAliases[item.pageId])
       })
     }, this)
+
+    this.pages = unsorted_pages.sort(function(a,b) {
+      var x = a.title.toLowerCase();
+      var y = b.title.toLowerCase();
+      if (x < y) {return -1;}
+      if (x > y) {return 1;}
+      return 0;
+    });    
+
     return this
   }
 

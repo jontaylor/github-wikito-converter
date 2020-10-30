@@ -79,14 +79,23 @@ var WikiConverter = (function () {
     value: function computePages() {
       var _this = this;
 
-      this.pages = [];
+      var unsorted_pages = [];
       this.toc.getItems().forEach(function (item) {
-        _this.pages.push({
+        unsorted_pages.push({
           title: item.title,
           file: _this.mdAliases[item.pageId],
           html: _this.markdownConverter.convertMarkdownFile(_this.mdAliases[item.pageId])
         });
       }, this);
+
+      this.pages = unsorted_pages.sort(function(a,b) {
+        var x = a.title.toLowerCase();
+        var y = b.title.toLowerCase();
+        if (x < y) {return -1;}
+        if (x > y) {return 1;}
+        return 0;
+      });
+
       return this;
     }
   }, {

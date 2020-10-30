@@ -58,7 +58,7 @@ class Toc {
    * @returns {string}
    */
   genTocFileContents() {
-    return Object.keys(this.converter.getMarkdownFiles()).map(filename => {
+    return Object.keys(this.converter.getMarkdownFiles()).sort().map(filename => {
       var basename = path.basename(filename)
       return util.format('- [%s](%s)', basename, basename)
     }).join('\n')

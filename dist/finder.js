@@ -50,6 +50,9 @@ var Finder = (function () {
             return reject(err);
           }
           logger.debug(util.format('Found %d markdown files and %d links pointing to them in TOC', Object.keys(mdFiles).length, Object.keys(aliases).length));
+          
+
+
           resolve({ files: mdFiles, aliases: aliases });
         });
       });

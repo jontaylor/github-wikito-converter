@@ -75,7 +75,7 @@ var Toc = (function () {
   }, {
     key: 'genTocFileContents',
     value: function genTocFileContents() {
-      return Object.keys(this.converter.getMarkdownFiles()).map(function (filename) {
+      return Object.keys(this.converter.getMarkdownFiles()).sort().map(function (filename) {
         var basename = path.basename(filename);
         return util.format('- [%s](%s)', basename, basename);
       }).join('\n');
