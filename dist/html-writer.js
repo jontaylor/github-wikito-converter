@@ -36,7 +36,7 @@ var HtmlWriter = (function (_BaseWriter) {
 
       this.converter.getPages().forEach(function (page) {
         var pageId = helpers.getPageIdFromFilenameOrLink(page.file);
-        html += "<p class=\"page\" id=\"" + pageId + "\"></p><h1>" + page.title + "</h1>\n" + page.html;
+        html += "<p class=\"page\" noid=\"" + pageId + "\"></p><h1>" + page.title + "</h1>\n" + page.html;
       }, this);
 
       html += this.buildFooter();

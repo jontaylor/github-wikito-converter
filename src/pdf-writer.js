@@ -52,6 +52,8 @@ class PdfWriter extends BaseWriter {
         options.footerRight = "[page]/[toPage]"
       }
 
+      options.pageSize = 'A5';
+
       wkhtmltopdf(html, options)
         .on('end', function() {
           logger.info(self.getExtension() + ' file written: %s', filename)

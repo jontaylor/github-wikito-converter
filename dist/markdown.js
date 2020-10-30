@@ -55,6 +55,20 @@ var Markdown = (function () {
           return util.format('<img src="%s" />', href);
         }
       };
+
+      this.mainRenderer.heading = function (text, level, raw) {
+       return '<h'
+        + (level+1)
+        + ' id="'
+        + this.options.headerPrefix
+        + raw.toLowerCase().replace(/[^\w]+/g, '-')
+        + '">'
+        + text
+        + '</h'
+        + level
+        + '>\n';       
+      };
+
       return this;
     }
   }, {
@@ -105,7 +119,7 @@ var Markdown = (function () {
           console.log('Did not find ' + href + ' with pageid ' + pageId + ' or decoded pageid ' + pageIdDecoded);
         }
 
-        return '<a href="' + href + '">' + text + '</a>';
+        return '<div><a href="' + href + '">' + text + '</a></div>';
       };
 
       return this;
@@ -122,8 +136,9 @@ var Markdown = (function () {
     key: 'convertMarkdownString',
     value: function convertMarkdownString(markdown, renderer) {
       renderer = renderer || this.mainRenderer;
+
       return marked(this.replaceGithubWikiLinks(markdown), {
-        renderer: renderer
+        renderer: renderer, headerIds: false, headerPrefix:'head'
       });
     }
   }, {

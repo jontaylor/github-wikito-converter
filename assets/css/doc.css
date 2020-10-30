@@ -431,6 +431,19 @@ span.float-right {
   display: block;
 }
 
+.pdf-doc .nav-container .nav div {
+  float: left;
+  width: 33%;
+  padding: 10px;
+}
+
+.pdf-doc .nav-container .nav:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+
 .pdf-doc pre.hljs, .pdf-doc code {
     font-size: 80%;
 }

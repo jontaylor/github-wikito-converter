@@ -61,7 +61,8 @@ var PdfWriter = (function (_BaseWriter) {
           toc: false, outline: true,
           marginLeft: 10, marginRight: 10,
           footerLine: false, footerSpacing: 2.5,
-          footerFontSize: 10, pageOffset: 0
+          footerFontSize: 10, pageOffset: 0,
+
         };
 
         if (footer) {
@@ -71,6 +72,11 @@ var PdfWriter = (function (_BaseWriter) {
         if (pdfPageCount) {
           options.footerRight = "[page]/[toPage]";
         }
+        //options.dpi = 300;
+        options.pageSize = 'A5';
+        //options.viewportSize = '1920x1080';
+
+        fs.writeFileSync('debug.html', html);
 
         wkhtmltopdf(html, options).on('end', function () {
           logger.info(self.getExtension() + ' file written: %s', filename);
